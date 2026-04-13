@@ -22,6 +22,11 @@
         #map {
             height: 90vh;
         }
+        .leaflet-popup-content img {
+            width: 250px;
+            border-radius: 8px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -38,17 +43,21 @@
 
     <script>
         // Khởi tạo bản đồ tại TP.HCM
-        var map = L.map('map').setView([10.8231, 106.6297], 13);
+        var map = L.map('map').setView([10.7725484, 106.6979886], 15);
 
         // Thêm lớp bản đồ từ OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Thêm một marker mẫu
-        L.marker([10.8231, 106.6297])
+        // Marker cho Chợ Bến Thành
+        L.marker([10.772548408659665, 106.69798860905667])
             .addTo(map)
-            .bindPopup("Đây là vị trí mẫu!")
+            .bindPopup(`
+                <h3>Chợ Bến Thành</h3>
+                <img src="images/ben-thanh.jpg" alt="Chợ Bến Thành">
+                <p>Một trong những biểu tượng nổi tiếng của TP. Hồ Chí Minh.</p>
+            `)
             .openPopup();
     </script>
 </body>
