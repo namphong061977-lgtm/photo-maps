@@ -5,104 +5,31 @@
     <title>Bản đồ ảnh dự án</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <!-- CSS riêng -->
+    <link rel="stylesheet" href="style.css">
 
-    <!-- Leaflet CSS -->
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
-    <!-- Leaflet Search CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
-    <style>
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            display: flex;
-        }
-
-        /* Sidebar */
-        #sidebar {
-            width: 300px;
-            background: #2c3e50;
-            color: white;
-            padding: 20px;
-            overflow-y: auto;
-        }
-
-        #sidebar h2 {
-            text-align: center;
-        }
-
-        .location-item {
-            cursor: pointer;
-            padding: 10px;
-            margin: 10px 0;
-            background: #34495e;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .location-item:hover {
-            background: #1abc9c;
-        }
-
-        /* Map */
-        #map {
-            flex: 1;
-            height: 100vh;
-        }
-
-        .leaflet-popup-content img {
-            width: 100%;
-            border-radius: 10px;
-            margin-top: 5px;
-        }
-
-        .header-title {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-    </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <div id="sidebar">
-        <div class="header-title">
-            <h2>📸 Bản đồ ảnh</h2>
-            <p>Danh sách địa điểm</p>
-        </div>
-        <div id="locationList"></div>
-    </div>
+    <!-- Tiêu đề mobile -->
+    <div id="mobileHeader">📸 Bản đồ ảnh</div>
 
-    <!-- Map -->
+    <!-- Bản đồ -->
     <div id="map"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <script>
-        // Khởi tạo bản đồ
-        var map = L.map('map').setView([10.8231, 106.6297], 13);
+        // Khởi tạo map
+        var map = L.map('map').setView([10.7725484, 106.6979886], 15);
 
-        // Thêm lớp bản đồ
+        // Layer bản đồ
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
-
-        // Thanh tìm kiếm địa điểm
-        L.Control.geocoder().addTo(map);
-
-        // Icon marker tùy chỉnh
-        function createIcon(size) {
-            return L.icon({
-                iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png',
-                iconSize: [size, size],
-                iconAnchor: [size / 2, size]
-            });
-        }
 
         // Dữ liệu địa điểm
         const locations = [
@@ -110,66 +37,44 @@
                 name: "Chợ Bến Thành",
                 lat: 10.772548408659665,
                 lng: 106.69798860905667,
-                description: "Một trong những biểu tượng nổi tiếng của TP. Hồ Chí Minh.",
+                description: "Biểu tượng nổi tiếng của TP.HCM.",
                 image: "Ben_Thanh_market_2.jpg"
             }
         ];
 
-        var markers = [];
-        var bounds = L.latLngBounds();
+        const markers = [];
 
-        // Hàm tạo popup
+        // Hàm resize ảnh theo zoom
+        function getImageSize(zoom) {
+            return Math.min(320, Math.max(120, zoom * 18));
+        }
+
         function createPopup(loc) {
+            const size = getImageSize(map.getZoom());
             return `
                 <h3>${loc.name}</h3>
-                <img src="${loc.image}" alt="${loc.name}">
+                <img src="${loc.image}" width="${size}">
                 <p>${loc.description}</p>
             `;
         }
 
-        // Thêm marker và danh sách sidebar
-        locations.forEach((loc, index) => {
-            var marker = L.marker([loc.lat, loc.lng], {
-                icon: createIcon(30)
-            }).addTo(map).bindPopup(createPopup(loc));
-
-            markers.push(marker);
-            bounds.extend([loc.lat, loc.lng]);
-
-            // Thêm vào sidebar
-            var item = document.createElement('div');
-            item.className = 'location-item';
-            item.innerHTML = `<strong>${loc.name}</strong><br>${loc.description}`;
-            item.onclick = () => {
-                map.setView([loc.lat, loc.lng], 17);
-                marker.openPopup();
-            };
-            document.getElementById('locationList').appendChild(item);
+        // Tạo marker
+        locations.forEach(loc => {
+            const marker = L.marker([loc.lat, loc.lng]).addTo(map);
+            marker.bindPopup(createPopup(loc));
+            markers.push({ marker, loc });
         });
 
-        // Tự động zoom để hiển thị tất cả địa điểm
-        map.fitBounds(bounds, { padding: [50, 50] });
-
-        // Thay đổi kích thước marker theo zoom
-        map.on('zoomend', function () {
-            var zoom = map.getZoom();
-            var size = Math.min(50, Math.max(25, zoom * 2));
-            markers.forEach(marker => {
-                marker.setIcon(createIcon(size));
+        // Update khi zoom
+        map.on('zoomend', () => {
+            markers.forEach(item => {
+                item.marker.setPopupContent(createPopup(item.loc));
+                if (item.marker.isPopupOpen()) {
+                    item.marker.openPopup();
+                }
             });
         });
-
-        // Định vị vị trí người dùng
-        map.locate({ setView: false });
-
-        map.on('locationfound', function (e) {
-            L.circleMarker(e.latlng, {
-                radius: 8,
-                color: '#007bff',
-                fillColor: '#007bff',
-                fillOpacity: 0.8
-            }).addTo(map).bindPopup("Vị trí của bạn");
-        });
     </script>
+
 </body>
 </html>
