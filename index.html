@@ -5,67 +5,80 @@
     <title>Bản đồ ảnh dự án</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- CSS riêng -->
+    <!-- Liên kết CSS -->
     <link rel="stylesheet" href="style.css">
 
-    <!-- Leaflet -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 </head>
 <body>
 
-    <!-- Tiêu đề mobile -->
+    <!-- Tiêu đề cho mobile -->
     <div id="mobileHeader">📸 Bản đồ ảnh</div>
 
-    <!-- Bản đồ -->
+    <!-- Khu vực bản đồ -->
     <div id="map"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // Khởi tạo map
+        // Khởi tạo bản đồ
         var map = L.map('map').setView([10.7725484, 106.6979886], 15);
 
-        // Layer bản đồ
+        // Thêm lớp bản đồ từ OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Dữ liệu địa điểm
+        // Dữ liệu các địa điểm
         const locations = [
             {
                 name: "Chợ Bến Thành",
                 lat: 10.772548408659665,
                 lng: 106.69798860905667,
-                description: "Biểu tượng nổi tiếng của TP.HCM.",
+                address: "Đường Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh",
+                description: "Một trong những biểu tượng nổi tiếng của TP. Hồ Chí Minh.",
                 image: "Ben_Thanh_market_2.jpg"
             }
+            // Có thể thêm nhiều địa điểm khác ở đây
         ];
 
         const markers = [];
 
-        // Hàm resize ảnh theo zoom
+        // Hàm thay đổi kích thước ảnh theo mức zoom
         function getImageSize(zoom) {
             return Math.min(320, Math.max(120, zoom * 18));
         }
 
+        // Hàm tạo nội dung popup
         function createPopup(loc) {
             const size = getImageSize(map.getZoom());
+
+            // Link mở Google Maps
+            const googleMapsLink = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
+
             return `
-                <h3>${loc.name}</h3>
-                <img src="${loc.image}" width="${size}">
-                <p>${loc.description}</p>
+                <div class="popup-content">
+                    <h3>${loc.name}</h3>
+                    <img src="${loc.image}" width="${size}" alt="${loc.name}">
+                    <p class="address">📍 <strong>Địa chỉ:</strong> ${loc.address}</p>
+                    <p>${loc.description}</p>
+                    <a href="${googleMapsLink}" target="_blank" class="map-link">
+                        🔗 Mở trên Google Maps
+                    </a>
+                </div>
             `;
         }
 
-        // Tạo marker
+        // Tạo marker cho từng địa điểm
         locations.forEach(loc => {
             const marker = L.marker([loc.lat, loc.lng]).addTo(map);
             marker.bindPopup(createPopup(loc));
             markers.push({ marker, loc });
         });
 
-        // Update khi zoom
+        // Cập nhật kích thước ảnh khi zoom
         map.on('zoomend', () => {
             markers.forEach(item => {
                 item.marker.setPopupContent(createPopup(item.loc));
