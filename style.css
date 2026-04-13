@@ -4,13 +4,13 @@ body {
     font-family: 'Poppins', Arial, sans-serif;
 }
 
-/* Map full màn hình */
+/* Bản đồ toàn màn hình */
 #map {
     height: 100vh;
     width: 100%;
 }
 
-/* Header mobile */
+/* Tiêu đề mobile */
 #mobileHeader {
     display: none;
     position: absolute;
@@ -27,16 +27,16 @@ body {
     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
 }
 
-/* Popup */
-.leaflet-popup-content {
+/* Nội dung popup */
+.popup-content {
     text-align: center;
 }
 
-.leaflet-popup-content h3 {
+.popup-content h3 {
     margin: 5px 0;
 }
 
-.leaflet-popup-content img {
+.popup-content img {
     border-radius: 10px;
     margin-top: 5px;
     transition: all 0.3s ease;
@@ -44,7 +44,30 @@ body {
     height: auto;
 }
 
-/* Responsive */
+/* Địa chỉ */
+.address {
+    font-size: 13px;
+    color: #555;
+    margin: 6px 0;
+}
+
+/* Link Google Maps */
+.map-link {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background-color: #1abc9c;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.map-link:hover {
+    background-color: #16a085;
+}
+
+/* Responsive cho điện thoại */
 @media (max-width: 768px) {
     #mobileHeader {
         display: block;
