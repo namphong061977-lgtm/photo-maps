@@ -63,11 +63,10 @@
 
         .caption {
             font-size: 14px;
-            font-style: italic;
             margin: 8px 0;
         }
 
-        /* Nút điều hướng ảnh */
+        /* Slideshow buttons */
         .nav-buttons {
             margin-top: 6px;
         }
@@ -86,7 +85,7 @@
             background-color: #2ecc71;
         }
 
-        /* Nút Google Maps */
+        /* Google Maps button */
         .map-link {
             display: inline-block;
             margin-top: 8px;
@@ -105,12 +104,12 @@
             transform: scale(1.05);
         }
 
-        /* Nút đặt giao hàng */
+        /* Order button (Grab) */
         .order-button {
             display: inline-block;
             margin-top: 8px;
             padding: 8px 12px;
-            background-color: #00B14F; /* Màu xanh Grab */
+            background-color: #00B14F;
             color: white;
             text-decoration: none;
             border-radius: 6px;
@@ -173,7 +172,7 @@
         let currentImageIndex = 0;
         let slideshowInterval = null;
 
-        // Icon marker màu xanh
+        // Marker màu xanh
         const greenIcon = new L.Icon({
             iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
             shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
@@ -183,15 +182,21 @@
             shadowSize: [41, 41]
         });
 
-        // Tạo marker
-        const marker = L.marker([shopLat, shopLng], { icon: greenIcon })
-            .addTo(map)
-            .bindPopup(createPopupContent());
+        // Hàm mở Grab với fallback
+        function openGrab() {
+            const grabLink = `grab://open?screenType=BOOKING&dropoffLatitude=${shopLat}&dropoffLongitude=${shopLng}`;
+            const fallback = `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`;
+
+            window.location.href = grabLink;
+
+            setTimeout(() => {
+                window.location.href = fallback;
+            }, 1500);
+        }
 
         // Nội dung popup
         function createPopupContent() {
             const googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`;
-            const grabLink = `grab://open?screenType=BOOKING&dropoffLatitude=${shopLat}&dropoffLongitude=${shopLng}`;
 
             return `
                 <div class="popup-content">
@@ -211,15 +216,17 @@
                         📍 Xem trên Google Maps
                     </a><br>
 
-                    <a href="${grabLink}" class="order-button"
-                       onclick="setTimeout(function() {
-                           window.location.href='${googleMapsLink}';
-                       }, 1500);">
-                       🛵 Đặt giao hàng
-                    </a>
+                    <button class="order-button" onclick="openGrab()">
+                        🛵 Đặt giao hàng
+                    </button>
                 </div>
             `;
         }
+
+        // Tạo marker
+        const marker = L.marker([shopLat, shopLng], { icon: greenIcon })
+            .addTo(map)
+            .bindPopup(createPopupContent());
 
         // Điều khiển slideshow
         function nextImage() {
@@ -232,12 +239,12 @@
             document.getElementById("popupImage").src = images[currentImageIndex];
         }
 
-        // Khi popup mở → chạy slideshow
+        // Chạy slideshow khi mở popup
         marker.on('popupopen', function () {
             slideshowInterval = setInterval(nextImage, 3000);
         });
 
-        // Khi popup đóng → dừng slideshow
+        // Dừng slideshow khi đóng popup
         marker.on('popupclose', function () {
             clearInterval(slideshowInterval);
         });
