@@ -2,54 +2,233 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bản đồ ảnh của tôi</title>
+    <title>Bản đồ Quán Phá Lấu Bò</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Nhúng Leaflet CSS -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
     <style>
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
         }
-        header {
-            background: #2c3e50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
+
         #map {
-            height: 90vh;
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Tiêu đề */
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(139, 69, 19, 0.95);
+            color: white;
+            padding: 8px 18px;
+            border-radius: 20px;
+            z-index: 1000;
+            font-size: 15px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Nội dung popup */
+        .popup-content {
+            text-align: center;
+            max-width: 260px;
+        }
+
+        .popup-content img {
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 8px;
+        }
+
+        .address {
+            font-size: 13px;
+            color: #555;
+            margin: 6px 0;
+        }
+
+        .caption {
+            font-size: 14px;
+            color: #333;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
+        .nav-buttons {
+            margin-top: 6px;
+        }
+
+        .nav-buttons button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            background-color: #8B4513;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #a0522d;
+        }
+
+        .map-link {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background-color: #d35400;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .map-link:hover {
+            background-color: #e67e22;
+        }
+
+        /* Marker tùy chỉnh */
+        .custom-marker {
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 0 6px rgba(0,0,0,0.4);
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 13px;
+                padding: 6px 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <h2>📸 Bản đồ ảnh dự án</h2>
-        <p>Nhấn vào các điểm trên bản đồ để xem ảnh</p>
-    </header>
 
-    <!-- Khu vực hiển thị bản đồ -->
+    <div class="title">🍲 Quán Phá Lấu Bò - Hẻm 243 Tôn Đản</div>
     <div id="map"></div>
 
-    <!-- Nhúng Leaflet JS -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // Khởi tạo bản đồ tại TP.HCM
-        var map = L.map('map').setView([10.8231, 106.6297], 13);
+        // =========================
+        // 1. Tọa độ quán
+        // =========================
+        const latitude = 10.756186685190368;
+        const longitude = 106.7071452492838;
 
-        // Thêm lớp bản đồ từ OpenStreetMap
+        // =========================
+        // 2. Khởi tạo bản đồ
+        // =========================
+        const map = L.map('map').setView([latitude, longitude], 17);
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Thêm một marker mẫu
-        L.marker([10.8231, 106.6297])
-            .addTo(map)
-            .bindPopup("Đây là vị trí mẫu!")
-            .openPopup();
+        // =========================
+        // 3. Danh sách ảnh
+        // =========================
+        const images = [
+            "phalau1.jpg", "phalau2.jpg", "phalau3.jpg", "phalau4.jpg",
+            "phalau5.jpg", "phalau6.jpg", "phalau7.jpg", "phalau8.jpg",
+            "phalau9.jpg", "phalau10.jpg", "phalau11.jpg", "phalau12.jpg",
+            "phalau13.jpg", "phalau14.jpg", "phalau15.jpg", "phalau16.jpg",
+            "phalau17.jpg", "phalau18.jpg", "phalau19.jpg", "phalau20.jpg",
+            "phalau21.jpg", "phalau22.jpg", "phalau23.jpg", "phalau24.jpg"
+        ];
+
+        let currentImageIndex = 0;
+        let slideshowInterval = null;
+
+        // =========================
+        // 4. Marker thay đổi kích thước theo zoom
+        // =========================
+        function getMarkerSize(zoom) {
+            if (zoom >= 18) return 80;
+            if (zoom >= 16) return 60;
+            if (zoom >= 14) return 45;
+            return 30;
+        }
+
+        function createCustomIcon(size) {
+            return L.divIcon({
+                html: `<div class="custom-marker" style="width:${size}px;height:${size}px;background-image:url('${images[0]}');"></div>`,
+                className: '',
+                iconSize: [size, size],
+                iconAnchor: [size / 2, size / 2]
+            });
+        }
+
+        let marker = L.marker([latitude, longitude], {
+            icon: createCustomIcon(getMarkerSize(map.getZoom()))
+        }).addTo(map);
+
+        // Cập nhật kích thước marker khi zoom
+        map.on('zoomend', function () {
+            const newSize = getMarkerSize(map.getZoom());
+            marker.setIcon(createCustomIcon(newSize));
+        });
+
+        // =========================
+        // 5. Nội dung Popup
+        // =========================
+        function createPopupContent() {
+            const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+            return `
+                <div class="popup-content">
+                    <h3>Quán Phá Lấu Bò</h3>
+                    <img id="popupImage" src="${images[currentImageIndex]}" alt="Phá lấu bò">
+                    <p class="address">
+                        📍 Hẻm 243 Tôn Đản, TP. Hồ Chí Minh
+                    </p>
+                    <p class="caption">
+                        "Hương vị phá lấu đậm đà, chuẩn vị truyền thống, được gìn giữ qua năm tháng, thu hút thực khách gần xa."
+                    </p>
+                    <div class="nav-buttons">
+                        <button onclick="prevImage()">⬅️</button>
+                        <button onclick="nextImage()">➡️</button>
+                    </div>
+                    <a href="${googleMapsLink}" target="_blank" class="map-link">
+                        📌 Mở trên Google Maps
+                    </a>
+                </div>
+            `;
+        }
+
+        marker.bindPopup(createPopupContent()).openPopup();
+
+        // =========================
+        // 6. Điều khiển slideshow
+        // =========================
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        marker.on('popupopen', function () {
+            slideshowInterval = setInterval(nextImage, 3000);
+        });
+
+        marker.on('popupclose', function () {
+            clearInterval(slideshowInterval);
+        });
     </script>
+
 </body>
 </html>
