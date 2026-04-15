@@ -2,121 +2,61 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bản đồ ảnh dự án</title>
+    <title>Bản đồ ảnh của tôi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
-    <!-- CSS riêng -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Làm cho bản đồ chiếm toàn màn hình */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Tiêu đề */
+        .title {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            z-index: 1000;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Tiêu đề nhỏ cho mobile -->
-    <div id="mobileHeader">📸 Bản đồ ảnh dự án</div>
-
-    <!-- Khu vực hiển thị bản đồ -->
+    <div class="title">📸 Bản đồ ảnh của tôi</div>
     <div id="map"></div>
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // =========================
-        // 1. Khởi tạo bản đồ
-        // =========================
-        var map = L.map('map').setView([10.7725484, 106.6979886], 15);
+        // Khởi tạo bản đồ tại TP. Hồ Chí Minh
+        var map = L.map('map').setView([10.8231, 106.6297], 13);
 
         // Thêm lớp bản đồ từ OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // =========================
-        // 2. Dữ liệu địa điểm
-        // =========================
-        const locations = [
-            {
-                name: "Chợ Bến Thành",
-                lat: 10.772548408659665,
-                lng: 106.69798860905667,
-                address: "Đường Lê Lợi, Phường Bến Thành, Quận 1, TP. Hồ Chí Minh",
-                description: "Một trong những biểu tượng nổi tiếng và lâu đời của TP. Hồ Chí Minh, thu hút đông đảo du khách trong và ngoài nước.",
-                image: "Ben_Thanh_market_2.jpg"
-            }
-
-            // 👉 Có thể thêm nhiều địa điểm khác tại đây
-            /*
-            {
-                name: "Nhà thờ Đức Bà",
-                lat: 10.7798,
-                lng: 106.6992,
-                address: "01 Công xã Paris, Bến Nghé, Quận 1, TP. Hồ Chí Minh",
-                description: "Công trình kiến trúc Pháp nổi bật tại trung tâm thành phố.",
-                image: "nha-tho-duc-ba.jpg"
-            }
-            */
-        ];
-
-        const markers = [];
-        const bounds = L.latLngBounds();
-
-        // =========================
-        // 3. Hàm thay đổi kích thước ảnh theo zoom
-        // =========================
-        function getImageSize(zoom) {
-            return Math.min(320, Math.max(140, zoom * 18));
-        }
-
-        // =========================
-        // 4. Hàm tạo nội dung popup
-        // =========================
-        function createPopup(loc) {
-            const size = getImageSize(map.getZoom());
-            const googleMapsLink = `https://www.google.com/maps?q=${loc.lat},${loc.lng}`;
-
-            return `
-                <div class="popup-content">
-                    <h3>${loc.name}</h3>
-                    <img src="${loc.image}" width="${size}" alt="${loc.name}">
-                    <p class="address">📍 <strong>Địa chỉ:</strong> ${loc.address}</p>
-                    <p class="description">${loc.description}</p>
-                    <a href="${googleMapsLink}" target="_blank" class="map-link">
-                        🔗 Mở trên Google Maps
-                    </a>
-                </div>
-            `;
-        }
-
-        // =========================
-        // 5. Tạo marker cho từng địa điểm
-        // =========================
-        locations.forEach(loc => {
-            const marker = L.marker([loc.lat, loc.lng])
-                .addTo(map)
-                .bindPopup(createPopup(loc));
-
-            markers.push({ marker, loc });
-            bounds.extend([loc.lat, loc.lng]);
-        });
-
-        // Tự động zoom để hiển thị tất cả địa điểm
-        if (locations.length > 1) {
-            map.fitBounds(bounds, { padding: [50, 50] });
-        }
-
-        // =========================
-        // 6. Cập nhật kích thước ảnh khi zoom
-        // =========================
-        map.on('zoomend', () => {
-            markers.forEach(item => {
-                item.marker.setPopupContent(createPopup(item.loc));
-                if (item.marker.isPopupOpen()) {
-                    item.marker.openPopup();
-                }
-            });
-        });
+        // Thêm một marker mẫu (Chợ Bến Thành)
+        L.marker([10.7725484, 106.6979886])
+            .addTo(map)
+            .bindPopup("<b>Chợ Bến Thành</b><br>Đây là vị trí mẫu.")
+            .openPopup();
     </script>
 
 </body>
