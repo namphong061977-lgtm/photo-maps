@@ -33,6 +33,7 @@
             font-size: 15px;
             font-weight: bold;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            text-align: center;
         }
 
         /* Nút quay về vị trí quán */
@@ -54,6 +55,7 @@
             background: #f1f1f1;
         }
 
+        /* Popup */
         .popup-content {
             text-align: center;
             max-width: 260px;
@@ -111,6 +113,7 @@
             background-color: #e67e22;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             .title {
                 font-size: 13px;
@@ -165,7 +168,7 @@
         let slideshowInterval = null;
 
         // =========================
-        // 4. Marker dạng ghim đỏ giống Google Maps
+        // 4. Marker dạng ghim đỏ
         // =========================
         const redIcon = L.icon({
             iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -237,6 +240,44 @@
             });
             marker.openPopup();
         }
+
+        // =========================
+        // 8. Tự động zoom về quán khi đi quá xa
+        // =========================
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                      Math.cos(φ1) * Math.cos(φ2) *
+                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        const MAX_DISTANCE = 2000; // 2 km
+
+        map.on('moveend', function () {
+            const center = map.getCenter();
+            const distance = calculateDistance(
+                center.lat,
+                center.lng,
+                latitude,
+                longitude
+            );
+
+            if (distance > MAX_DISTANCE) {
+                map.setView([latitude, longitude], 17, {
+                    animate: true,
+                    duration: 1.5
+                });
+                marker.openPopup();
+            }
+        });
     </script>
 
 </body>
