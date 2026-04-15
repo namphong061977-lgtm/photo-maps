@@ -137,24 +137,18 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
-        // =========================
-        // 1. Tọa độ quán
-        // =========================
+        // Tọa độ quán
         const latitude = 10.756186685190368;
         const longitude = 106.7071452492838;
 
-        // =========================
-        // 2. Khởi tạo bản đồ
-        // =========================
+        // Khởi tạo bản đồ
         const map = L.map('map').setView([latitude, longitude], 17);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // =========================
-        // 3. Danh sách hình ảnh
-        // =========================
+        // Danh sách hình ảnh
         const images = [
             "phalau1.jpg", "phalau2.jpg", "phalau3.jpg", "phalau4.jpg",
             "phalau5.jpg", "phalau6.jpg", "phalau7.jpg", "phalau8.jpg",
@@ -167,9 +161,7 @@
         let currentImageIndex = 0;
         let slideshowInterval = null;
 
-        // =========================
-        // 4. Marker dạng ghim đỏ
-        // =========================
+        // Marker dạng ghim đỏ
         const redIcon = L.icon({
             iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
             shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
@@ -184,12 +176,9 @@
             .bindPopup(createPopupContent())
             .openPopup();
 
-        // =========================
-        // 5. Nội dung Popup
-        // =========================
+        // Nội dung popup
         function createPopupContent() {
             const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
             return `
                 <div class="popup-content">
                     <h3>Quán Phá Lấu Bò</h3>
@@ -209,9 +198,7 @@
             `;
         }
 
-        // =========================
-        // 6. Điều khiển slideshow
-        // =========================
+        // Điều khiển slideshow
         function nextImage() {
             currentImageIndex = (currentImageIndex + 1) % images.length;
             document.getElementById("popupImage").src = images[currentImageIndex];
@@ -230,9 +217,7 @@
             clearInterval(slideshowInterval);
         });
 
-        // =========================
-        // 7. Nút quay về vị trí quán
-        // =========================
+        // Nút quay về vị trí quán
         function recenterMap() {
             map.setView([latitude, longitude], 17, {
                 animate: true,
@@ -241,9 +226,9 @@
             marker.openPopup();
         }
 
-        // =========================
-        // 8. Tự động zoom về quán khi đi quá xa
-        // =========================
+        // Tự động quay về vị trí quán chỉ 1 lần khi đi quá xa
+        let hasRecentered = false;
+
         function calculateDistance(lat1, lng1, lat2, lng2) {
             const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
@@ -251,9 +236,9 @@
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lng2 - lng1) * Math.PI / 180;
 
-            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            const a = Math.sin(Δφ / 2) ** 2 +
                       Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+                      Math.sin(Δλ / 2) ** 2;
 
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
@@ -262,6 +247,8 @@
         const MAX_DISTANCE = 2000; // 2 km
 
         map.on('moveend', function () {
+            if (hasRecentered) return;
+
             const center = map.getCenter();
             const distance = calculateDistance(
                 center.lat,
@@ -271,11 +258,10 @@
             );
 
             if (distance > MAX_DISTANCE) {
-                map.setView([latitude, longitude], 17, {
-                    animate: true,
-                    duration: 1.5
-                });
-                marker.openPopup();
+                hasRecentered = true;
+                setTimeout(() => {
+                    recenterMap();
+                }, 800);
             }
         });
     </script>
