@@ -43,7 +43,7 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
-        /* Nội dung popup */
+        /* Popup */
         .popup-content {
             text-align: center;
             max-width: 260px;
@@ -86,7 +86,7 @@
             background-color: #2ecc71;
         }
 
-        /* Nút Google Maps nổi bật */
+        /* Nút Google Maps */
         .map-link {
             display: inline-block;
             margin-top: 8px;
@@ -97,11 +97,30 @@
             border-radius: 6px;
             font-size: 14px;
             font-weight: bold;
-            transition: all 0.3s ease;
+            transition: 0.3s;
         }
 
         .map-link:hover {
             background-color: #c23321;
+            transform: scale(1.05);
+        }
+
+        /* Nút đặt giao hàng */
+        .order-button {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background-color: #00B14F; /* Màu xanh Grab */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .order-button:hover {
+            background-color: #009944;
             transform: scale(1.05);
         }
 
@@ -171,7 +190,9 @@
 
         // Nội dung popup
         function createPopupContent() {
-            const googleMapsLink = `https://www.google.com/maps?q=${shopLat},${shopLng}`;
+            const googleMapsLink = `https://www.google.com/maps/dir/?api=1&destination=${shopLat},${shopLng}`;
+            const grabLink = `grab://open?screenType=BOOKING&dropoffLatitude=${shopLat}&dropoffLongitude=${shopLng}`;
+
             return `
                 <div class="popup-content">
                     <h3>Phá lấu bò Nga</h3>
@@ -180,12 +201,21 @@
                     <p class="caption">
                         Hương vị phá lấu đậm đà, chuẩn vị truyền thống, được gìn giữ qua năm tháng.
                     </p>
+
                     <div class="nav-buttons">
                         <button onclick="prevImage()">⬅️</button>
                         <button onclick="nextImage()">➡️</button>
                     </div>
+
                     <a href="${googleMapsLink}" target="_blank" class="map-link">
-                        📌 Xem trên Google Maps
+                        📍 Xem trên Google Maps
+                    </a><br>
+
+                    <a href="${grabLink}" class="order-button"
+                       onclick="setTimeout(function() {
+                           window.location.href='${googleMapsLink}';
+                       }, 1500);">
+                       🛵 Đặt giao hàng
                     </a>
                 </div>
             `;
