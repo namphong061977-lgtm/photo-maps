@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bản đồ ảnh của tôi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Nhúng Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        #map {
+            height: 90vh;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h2>📸 Bản đồ ảnh dự án</h2>
+        <p>Nhấn vào các điểm trên bản đồ để xem ảnh</p>
+    </header>
+
+    <!-- Khu vực hiển thị bản đồ -->
+    <div id="map"></div>
+
+    <!-- Nhúng Leaflet JS -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+    <script>
+        // Khởi tạo bản đồ tại TP.HCM
+        var map = L.map('map').setView([10.8231, 106.6297], 13);
+
+        // Thêm lớp bản đồ từ OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Thêm một marker mẫu
+        L.marker([10.8231, 106.6297])
+            .addTo(map)
+            .bindPopup("Đây là vị trí mẫu!")
+            .openPopup();
+    </script>
+</body>
+</html>
