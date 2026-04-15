@@ -144,6 +144,7 @@
         // Khởi tạo bản đồ
         const map = L.map('map').setView([latitude, longitude], 17);
 
+        // Lớp bản đồ OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
@@ -161,7 +162,7 @@
         let currentImageIndex = 0;
         let slideshowInterval = null;
 
-        // Marker dạng ghim đỏ
+        // Ghim đỏ giống Google Maps
         const redIcon = L.icon({
             iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
             shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
@@ -171,6 +172,7 @@
             shadowSize: [41, 41]
         });
 
+        // Tạo marker
         const marker = L.marker([latitude, longitude], { icon: redIcon })
             .addTo(map)
             .bindPopup(createPopupContent())
@@ -225,45 +227,6 @@
             });
             marker.openPopup();
         }
-
-        // Tự động quay về vị trí quán chỉ 1 lần khi đi quá xa
-        let hasRecentered = false;
-
-        function calculateDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371e3;
-            const φ1 = lat1 * Math.PI / 180;
-            const φ2 = lat2 * Math.PI / 180;
-            const Δφ = (lat2 - lat1) * Math.PI / 180;
-            const Δλ = (lng2 - lng1) * Math.PI / 180;
-
-            const a = Math.sin(Δφ / 2) ** 2 +
-                      Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ / 2) ** 2;
-
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        const MAX_DISTANCE = 2000; // 2 km
-
-        map.on('moveend', function () {
-            if (hasRecentered) return;
-
-            const center = map.getCenter();
-            const distance = calculateDistance(
-                center.lat,
-                center.lng,
-                latitude,
-                longitude
-            );
-
-            if (distance > MAX_DISTANCE) {
-                hasRecentered = true;
-                setTimeout(() => {
-                    recenterMap();
-                }, 800);
-            }
-        });
     </script>
 
 </body>
