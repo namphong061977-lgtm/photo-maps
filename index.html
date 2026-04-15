@@ -2,10 +2,18 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Bandohem - Khám phá ẩm thực trong từng con hẻm</title>
+    <title>bandohem.com</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Leaflet CSS (không dùng integrity để tránh lỗi) -->
+    <!-- SEO & Social Sharing -->
+    <meta name="description" content="Khám phá ẩm thực trong từng con hẻm Sài Gòn.">
+    <meta property="og:title" content="bandohem.com">
+    <meta property="og:description" content="Khám phá ẩm thực trong từng con hẻm Sài Gòn.">
+    <meta property="og:image" content="https://namphong061977-lgtm.github.io/photo-maps/phalau1.jpg">
+    <meta property="og:url" content="https://namphong061977-lgtm.github.io/photo-maps/">
+    <meta property="og:type" content="website">
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
     <style>
@@ -19,7 +27,7 @@
             width: 100%;
         }
 
-        /* Tiêu đề trang */
+        /* Tiêu đề */
         .title {
             position: absolute;
             top: 10px;
@@ -31,10 +39,163 @@
             border-radius: 20px;
             z-index: 1000;
             font-size: 16px;
-            text-align: center;
         }
 
-        /* Nội dung popup */
+        /* Popup */
+        .popup-content {
+            text-align: center;
+            max-width: 260px;
+        }
+
+        .popup-content img {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .address {
+            font-size: 13px;
+            color: #555;
+            margin: 6px 0;
+        }
+
+        .caption {
+            font-size: 14px;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
+        .nav-buttons {
+            margin-top: 6px;
+        }
+
+        .nav-buttons button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            background-color: #c0392b;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #e74c3c;
+        }
+
+        .map-link {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 6px 10px;
+            background-color: #2980b9;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+
+        .map-link:hover {
+            background-color: #3498db;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="title">🗺️ bandohem.com</div>
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Tọa độ quán Phá lấu bò Nga
+        const latitude = 10.756186685190368;
+        const longitude = 106.7071452492838;
+
+        // Khởi tạo bản đồ
+        const map = L.map('map').setView([latitude, longitude], 17);
+
+        // Thêm lớp bản đồ OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Danh sách hình ảnh (thêm bao nhiêu ảnh cũng được)
+        const images = [
+            "phalau1.jpg",
+            "phalau2.jpg",
+            "phalau3.jpg",
+            "phalau4.jpg",
+            "phalau5.jpg",
+            "phalau6.jpg",
+            "phalau7.jpg",
+            "phalau8.jpg"
+        ];
+
+        let currentImageIndex = 0;
+        let slideshowInterval = null;
+
+        // Tạo marker
+        const marker = L.marker([latitude, longitude])
+            .addTo(map)
+            .bindPopup(createPopupContent())
+            .openPopup();
+
+        // Nội dung popup
+        function createPopupContent() {
+            const googleMapsLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+            return `
+                <div class="popup-content">
+                    <h3>Phá lấu bò Nga</h3>
+                    <img id="popupImage" src="${images[currentImageIndex]}" alt="Phá lấu bò Nga">
+                    <p class="address">📍 Hẻm 243 Tôn Đản, TP. Hồ Chí Minh</p>
+                    <p class="caption">
+                        Hương vị phá lấu đậm đà, chuẩn vị truyền thống, được gìn giữ qua năm tháng.
+                    </p>
+                    <div class="nav-buttons">
+                        <button onclick="prevImage()">⬅️</button>
+                        <button onclick="nextImage()">➡️</button>
+                    </div>
+                    <a href="${googleMapsLink}" target="_blank" class="map-link">
+                        📌 Xem trên Google Maps
+                    </a>
+                </div>
+            `;
+        }
+
+        // Chuyển ảnh tiếp theo
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        // Quay lại ảnh trước
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        // Tự động chuyển ảnh khi mở popup
+        marker.on('popupopen', function () {
+            slideshowInterval = setInterval(nextImage, 3000);
+        });
+
+        // Dừng slideshow khi đóng popup
+        marker.on('popupclose', function () {
+            clearInterval(slideshowInterval);
+        });
+    </script>
+
+</body>
+</html>        /* Nội dung popup */
         .popup-content {
             text-align: center;
             max-width: 260px;
