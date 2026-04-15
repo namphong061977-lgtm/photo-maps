@@ -85,6 +85,195 @@
             background-color: #2ecc71;
         }
 
+        /* Nút Google Maps nổi bật */
+        .map-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            background-color: #EA4335; /* Màu đỏ Google */
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .map-link:hover {
+            background-color: #c23321;
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 14px;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Tiêu đề -->
+    <div class="title">🗺️ bandohem.com - Khám phá những con hẻm Thành phố Hồ Chí Minh</div>
+
+    <!-- Bản đồ -->
+    <div id="map"></div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // Trung tâm TP.HCM
+        const hcmLat = 10.8231;
+        const hcmLng = 106.6297;
+
+        // Tọa độ quán Phá lấu bò Nga
+        const shopLat = 10.756186685190368;
+        const shopLng = 106.7071452492838;
+
+        // Khởi tạo bản đồ
+        const map = L.map('map').setView([hcmLat, hcmLng], 13);
+
+        // Thêm lớp bản đồ OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Danh sách 24 hình ảnh
+        const images = [
+            "phalau1.jpg","phalau2.jpg","phalau3.jpg","phalau4.jpg",
+            "phalau5.jpg","phalau6.jpg","phalau7.jpg","phalau8.jpg",
+            "phalau9.jpg","phalau10.jpg","phalau11.jpg","phalau12.jpg",
+            "phalau13.jpg","phalau14.jpg","phalau15.jpg","phalau16.jpg",
+            "phalau17.jpg","phalau18.jpg","phalau19.jpg","phalau20.jpg",
+            "phalau21.jpg","phalau22.jpg","phalau23.jpg","phalau24.jpg"
+        ];
+
+        let currentImageIndex = 0;
+        let slideshowInterval = null;
+
+        // Icon màu xanh
+        const greenIcon = new L.Icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        // Tạo marker
+        const marker = L.marker([shopLat, shopLng], { icon: greenIcon })
+            .addTo(map)
+            .bindPopup(createPopupContent());
+
+        // Nội dung popup
+        function createPopupContent() {
+            const googleMapsLink = `https://www.google.com/maps?q=${shopLat},${shopLng}`;
+            return `
+                <div class="popup-content">
+                    <h3>Phá lấu bò Nga</h3>
+                    <img id="popupImage" src="${images[currentImageIndex]}" alt="Phá lấu bò Nga">
+                    <p class="address">📍 Hẻm 243 Tôn Đản, TP. Hồ Chí Minh</p>
+                    <p class="caption">
+                        Hương vị phá lấu đậm đà, chuẩn vị truyền thống, được gìn giữ qua năm tháng.
+                    </p>
+                    <div class="nav-buttons">
+                        <button onclick="prevImage()">⬅️</button>
+                        <button onclick="nextImage()">➡️</button>
+                    </div>
+                    <a href="${googleMapsLink}" target="_blank" class="map-link">
+                        📌 Xem trên Google Maps
+                    </a>
+                </div>
+            `;
+        }
+
+        // Điều khiển slideshow
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            document.getElementById("popupImage").src = images[currentImageIndex];
+        }
+
+        // Tự động chạy slideshow khi mở popup
+        marker.on('popupopen', function () {
+            slideshowInterval = setInterval(nextImage, 3000);
+        });
+
+        // Dừng slideshow khi đóng popup
+        marker.on('popupclose', function () {
+            clearInterval(slideshowInterval);
+        });
+
+        // Tự động bay đến quán và mở popup khi vào link
+        window.onload = function () {
+            setTimeout(function () {
+                map.flyTo([shopLat, shopLng], 17, {
+                    duration: 2
+                });
+                marker.openPopup();
+            }, 2000);
+        };
+    </script>
+
+</body>
+</html>            color: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            z-index: 1000;
+            font-size: 16px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        /* Popup */
+        .popup-content {
+            text-align: center;
+            max-width: 260px;
+        }
+
+        .popup-content img {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .address {
+            font-size: 13px;
+            color: #555;
+            margin: 6px 0;
+        }
+
+        .caption {
+            font-size: 14px;
+            font-style: italic;
+            margin: 8px 0;
+        }
+
+        .nav-buttons {
+            margin-top: 6px;
+        }
+
+        .nav-buttons button {
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            background-color: #27ae60;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .nav-buttons button:hover {
+            background-color: #2ecc71;
+        }
+
         .map-link {
             display: inline-block;
             margin-top: 6px;
